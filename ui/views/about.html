@@ -1,1 +1,24 @@
 <h1 i18n="about"></h1>
+
+<h2 id="test"></h2>
+
+<script>
+	nethserver.exec(
+        ["cockpit-test-module/read"],
+        {},
+        null,
+        function (response) {
+            try {
+                response = JSON.parse(response);
+		name = response.configuration
+		$('#test').text(name)
+		console.print(name)
+            } catch (e) {
+                console.error(e)
+            }
+        },
+        function (error) {
+            console.error(error)
+        }
+    );
+</script>

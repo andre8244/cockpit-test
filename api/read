@@ -1,0 +1,2 @@
+printf '{"status": "success", "configuration": "Andre" }'
+
