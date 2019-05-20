@@ -1,0 +1,23 @@
+{
+    "id": "cockpit-test-module",
+    "name": "Cockpit Test Module",
+    "summary": "Short description of Cockpit Test Module",
+    "description": "Very very very very very long description of Cockpit Test Module",
+    "url": "cockpit-test-module",
+    "homepage": "https://github.com/NethServer/cockpit-test-module",
+    "provides": ["cockpit-test-module"],
+    "release": {
+        "version": "1.0.0"
+    },
+    "tags": ["tag1", "tag2", "tag3"],
+    "license": "GPL-3.0",
+    "bugs": {
+        "url": "https://github.com/NethServer/dev/issues"
+    },
+    "author": {
+        "name": "Author's name of Cockpit Test Module",
+        "url": "https://github.com/NethServer/cockpit-test-module",
+        "email": "Author's email of Cockpit Test Module"
+    },
+    "icon": "icon.png"
+}
