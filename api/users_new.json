@@ -1,0 +1,20 @@
+[
+  {
+    "dob": "01/01/1975", 
+    "cognome": "Super", 
+    "id": 1, 
+    "firstname": "Mario"
+  }, 
+  {
+    "dob": "01/01/1977", 
+    "cognome": "Super", 
+    "id": 2, 
+    "firstname": "Luigi"
+  }, 
+  {
+    "dob": "01/01/1985", 
+    "cognome": "Super", 
+    "id": 3, 
+    "firstname": "Wario"
+  }
+]

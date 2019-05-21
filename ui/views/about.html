@@ -9,12 +9,12 @@
 		null,
 		function (response) {
 		    try {
-			response = JSON.parse(response);
-			name = response.configuration
-			$('#test').text(name)
-			console.log(name)
+					response = JSON.parse(response);
+			// name = response.configuration
+			// $('#test').text(name)
+			// console.log(name)
 		    } catch (e) {
-			console.error(e)
+					console.error(e)
 		    }
 		},
 		function (error) {
@@ -22,4 +22,3 @@
 		}
     	);
 </script>
-

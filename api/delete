@@ -6,15 +6,13 @@ import sys
 
 try:
     line = fileinput.input()[0].rstrip()
-    user_updated = simplejson.loads(line)
+    input = simplejson.loads(line)
 
     with open('users.json', "r") as users_file:
         users = simplejson.load(users_file)
-        id = user_updated["id"]
-        user_to_update = filter(lambda user: user["id"] == id, users)[0]
-        user_to_update["firstname"] = user_updated["firstname"]
-        user_to_update["lastname"] = user_updated["lastname"]
-        user_to_update["dob"] = user_updated["dob"]
+        id = input["id"]
+        user_to_delete = filter(lambda user: user["id"] == id, users)[0]
+        users.remove(user_to_delete)
 
     with open('users.json', "w") as users_file:
         simplejson.dump(users, users_file, indent=2)

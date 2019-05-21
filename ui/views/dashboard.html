@@ -1,2 +1,34 @@
-<h1 i18n="dashboard"></h1>
+<h1 i18n="users"></h1>
 
+<h3 i18n="actions"></h3>
+
+<button id="bt_add_user" class="btn btn-primary" type="submit" i18n="add_user"></button>
+
+<script>
+  $('[i18n]').each(function () {
+      $(this).text(_($(this).attr('i18n')))
+  });
+
+  $( "#bt_add_user" ).click(function() {
+    alert( "Click!" );
+  });
+
+	nethserver.exec(
+		["cockpit-test-module/read"],
+		{},
+		null,
+		function (response) {
+		    try {
+					response = JSON.parse(response);
+			// name = response.configuration
+			// $('#test').text(name)
+			// console.log(name)
+		    } catch (e) {
+					console.error(e)
+		    }
+		},
+		function (error) {
+		    console.error(error)
+		}
+    	);
+</script>

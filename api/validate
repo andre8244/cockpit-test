@@ -1,0 +1,33 @@
+#!/usr/bin/python
+
+import simplejson
+import fileinput
+import datetime
+import sys
+
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
+try:
+    line = fileinput.input()[0].rstrip()
+    input = simplejson.loads(line)
+
+    #id = input["id"]
+    #if not isinstance(id, (int, long)):
+    #    raise ValueError('id is not numeric')
+
+    firstname = input["firstname"]
+    if hasNumbers(firstname):
+        raise ValueError('firstname contains digits')
+
+    lastname = input["lastname"]
+    if hasNumbers(lastname):
+        raise ValueError('lastname contains digits')
+
+    dob_string = input["dob"]
+    dob = datetime.datetime.strptime(dob_string, '%d/%m/%Y')
+
+    print({ "state": "success" })
+except Exception, e:
+    print simplejson.dumps({'error':"%s"%e})
+    sys.exit(1)

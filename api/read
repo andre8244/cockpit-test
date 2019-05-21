@@ -1,2 +1,13 @@
-printf '{"status": "success", "configuration": "Andre" }'
+#!/usr/bin/python
 
+import simplejson
+import sys
+
+try:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json') as f:
+        users = simplejson.load(f)
+        output = simplejson.dumps({'configuration': { 'users': users } })
+        print(output)
+except Exception, e:
+    print simplejson.dumps({'error':"%s"%e})
+    sys.exit(1)

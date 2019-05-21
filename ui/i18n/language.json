@@ -2,5 +2,8 @@
     "dashboard": "Dashboard",
     "item_1": "Item 1",
     "logs": "Logs",
-    "about": "About"
+    "about": "About",
+    "users": "Users",
+    "actions": "Actions",
+    "add_user": "Add user"
 }
