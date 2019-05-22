@@ -8,7 +8,7 @@ try:
     line = fileinput.input()[0].rstrip()
     user_updated = simplejson.loads(line)
 
-    with open('users.json', "r") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "r") as users_file:
         users = simplejson.load(users_file)
         id = user_updated["id"]
         user_to_update = filter(lambda user: user["id"] == id, users)[0]
@@ -16,7 +16,7 @@ try:
         user_to_update["lastname"] = user_updated["lastname"]
         user_to_update["dob"] = user_updated["dob"]
 
-    with open('users.json', "w") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "w") as users_file:
         simplejson.dump(users, users_file, indent=2)
         print({ "state": "success" })
 except Exception, e:

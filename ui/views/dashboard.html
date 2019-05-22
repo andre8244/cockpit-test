@@ -1,34 +1,376 @@
 <h1 i18n="users"></h1>
 
-<h3 i18n="actions"></h3>
+<div id="loader" class="spinner spinner-lg"></div>
+<div id="content">
+  <h3 i18n="actions"></h3>
+  <button id="btAddUser" class="btn btn-primary" type="submit" i18n="add_user" data-toggle="modal" data-target="#modalUserCreate"></button>
 
-<button id="bt_add_user" class="btn btn-primary" type="submit" i18n="add_user"></button>
+  <!-- modal for user creation -->
+  <div class="modal fade" id="modalUserCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <span class="pficon pficon-close"></span>
+          </button>
+          <h4 class="modal-title" id="modalUserCreateLabel" i18n="add_user"></h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal">
+            <div id="group-firstname-create" class="form-group">
+              <label class="col-sm-3 control-label" for="txFirstNameCreate" i18n="first_name"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txFirstNameCreate" class="form-control">
+                <span id="error-firstname-create" class="help-block" i18n="firstname_validation"></span>
+              </div>
+            </div>
+            <div id="group-lastname-create" class="form-group">
+              <label class="col-sm-3 control-label" for="txLastNameCreate" i18n="last_name"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txLastNameCreate" class="form-control">
+                <span id="error-lastname-create" class="help-block" i18n="lastname_validation"></span>
+              </div>
+            </div>
+            <div id="group-dob-create" class="form-group">
+              <label class="col-sm-3 control-label" for="txtxDobCreateDob" i18n="date_of_birth"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txDobCreate" class="form-control bootstrap-datepicker" data-date-format='dd/mm/yyyy' >
+                <span id="error-dob-create" class="help-block" i18n="dob_validation"></span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" i18n="cancel"></button>
+          <button type="button" class="btn btn-primary" i18n="save" id="btSaveCreate"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for user update -->
+  <div class="modal fade" id="modalUserUpdate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <span class="pficon pficon-close"></span>
+          </button>
+          <h4 class="modal-title" id="modalUserUpdateLabel" i18n="edit_user"></h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal">
+            <div id="group-firstname-update" class="form-group">
+              <label class="col-sm-3 control-label" for="txFirstName" i18n="first_name"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txFirstNameUpdate" class="form-control">
+                <span id="error-firstname-update" class="help-block" i18n="firstname_validation"></span>
+              </div>
+            </div>
+            <div id="group-lastname-update" class="form-group">
+              <label class="col-sm-3 control-label" for="txLastName" i18n="last_name"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txLastNameUpdate" class="form-control">
+                <span id="error-lastname-update" class="help-block" i18n="lastname_validation"></span>
+              </div>
+            </div>
+            <div id="group-dob-update" class="form-group">
+              <label class="col-sm-3 control-label" for="txDob" i18n="date_of_birth"></label>
+              <div class="col-sm-9">
+                <input type="text" id="txDobUpdate" class="form-control">
+                <span id="error-dob-update" class="help-block" i18n="dob_validation"></span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" i18n="cancel"></button>
+          <button type="button" class="btn btn-primary" i18n="save" id="btSaveUpdate"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div id="users" class="list-group list-view-pf list-view-pf-view">
+    </div>
+  </div>
+</div>
 
 <script>
-  $('[i18n]').each(function () {
-      $(this).text(_($(this).attr('i18n')))
+  // define variables
+  var users = [];
+  var current_id_user = -1;
+
+  $(document).ready(function () {
+    // toggle dropdown menu
+    $('#pf-list-standard .list-view-pf-actions').on('show.bs.dropdown', function () {
+      var $this = $(this);
+      var $dropdown = $this.find('.dropdown');
+      var space = $(window).height() - $dropdown[0].getBoundingClientRect().top - $this.find('.dropdown-menu').outerHeight(true);
+      $dropdown.toggleClass('dropup', space < 10);
+    });
+
+    $('#loader').show()
+    $('#content').hide()
+    $('#error-firstname-create').hide()
+    $('#error-lastname-create').hide()
+    $('#error-dob-create').hide()
+    $('#error-firstname-update').hide()
+    $('#error-lastname-update').hide()
+    $('#error-dob-create-update').hide()
+
+    // Initialize Boostrap-datepicker
+    $('.bootstrap-datepicker').datepicker({
+      autoclose: true,
+      todayBtn: "linked",
+      todayHighlight: true,
+      dateFormat: 'dd-mm-yy'
+    });
+
+    $('#btAddUser').click(function() {
+      // remove validation errors from modal
+      $('[id^="group-"').removeClass('has-error')
+      $('#error-firstname-create').hide()
+      $('#error-lastname-create').hide()
+      $('#error-dob-create').hide()
+    });
   });
 
-  $( "#bt_add_user" ).click(function() {
-    alert( "Click!" );
+  $( function() {
+    $( "#txDobCreate" ).datepicker();
   });
 
-	nethserver.exec(
-		["cockpit-test-module/read"],
-		{},
-		null,
-		function (response) {
-		    try {
-					response = JSON.parse(response);
-			// name = response.configuration
-			// $('#test').text(name)
-			// console.log(name)
-		    } catch (e) {
-					console.error(e)
-		    }
-		},
-		function (error) {
-		    console.error(error)
-		}
-    	);
+  $( function() {
+    $( "#txDobUpdate" ).datepicker();
+  });
+
+  function applyTranslations() {
+      $('[i18n]').each(function () {
+          $(this).text(_($(this).attr('i18n')))
+      });
+  }
+
+  function getConfig() {
+      nethserver.exec(
+          ["cockpit-test-module/read"],
+          {},
+          null,
+          function (success) {
+              try {
+                  success = JSON.parse(success);
+                  users = success.configuration.users
+                  $('#users').empty()
+
+                  for (i = 0; i < users.length; i++){
+                    var user = users[i]
+                    // $('#users').append('<div id="' + user.id + '" class="list-group-item info-item">' + user.firstname + ' ' + user.lastname + ' ' + user.dob +
+                    //   '<button id=edit_"' + user.id + '" class="bt_edit_user" class="btn btn-primary" i18n="edit_user"></button>' +
+                    //   '<button id=delete_"' + user.id + '" class="bt_delete_user" class="btn btn-primary" i18n="delete_user"></button>' +
+                    //   '</div>')
+                    $('#users').append(`
+                      <div class="list-group-item">
+                        <div class="list-view-pf-actions">
+                          <button class="btn btn-default" id="edit_` + user.id + `" data-toggle="modal" data-target="#modalUserUpdate">Edit</button>
+                          <div class="dropdown pull-right dropdown-kebab-pf">
+                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownKebabRight9" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                              <span class="fa fa-ellipsis-v"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebabRight9">
+                              <li><a href="#" id="delete_` + user.id + `">Delete</a></li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="list-view-pf-main-info">
+                          <div class="list-view-pf-left">
+                            <span class="fa fa-linux list-view-pf-icon-sm"></span>
+                          </div>
+                          <div class="list-view-pf-body">
+                            <div class="list-view-pf-description">
+                              <div class="list-group-item-heading">` +
+                                user.firstname + ` ` + user.lastname +
+                              `</div>
+                              <div class="list-group-item-text">` +
+                                user.dob +
+                              `</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>`);
+                  }
+                  applyTranslations()
+                  $('#loader').hide()
+                  $('#content').show()
+              } catch (e) {
+                  console.error(e)
+              }
+          },
+          function (error) {
+              console.error(error)
+          }
+      );
+  }
+
+  $('#btSaveCreate').click(function() {
+    // remove errors from GUI
+    $('[id^="group-"').removeClass('has-error')
+    $('#error-firstname-create').hide()
+    $('#error-lastname-create').hide()
+    $('#error-dob-create').hide()
+
+    var firstname = $('#txFirstNameCreate').val()
+    var lastname = $('#txLastNameCreate').val()
+    var dob = $('#txDobCreate').val()
+    var userObj = {
+      "firstname": firstname,
+      "lastname": lastname,
+      "dob": dob
+    }
+    nethserver.exec(
+        ["cockpit-test-module/validate"],
+        userObj,
+        null,
+        function (success) {
+            // update values
+            nethserver.exec(
+                ["cockpit-test-module/create"],
+                userObj,
+                null,
+                function (success) {
+                    // success - hide notifications after 3 seconds
+                    parent.ns.$children[0].notifications.success.show = true
+                    parent.ns.$children[0].notifications.success.message = "User created"
+                    setTimeout(function () {
+                        parent.ns.$children[0].notifications.success.show = false;
+                    }, 3000)
+                    getConfig()
+                },
+                function (error) {
+                    // error
+                    parent.ns.$children[0].notifications.error.show = true
+                    parent.ns.$children[0].notifications.error.message = "Error: " + error
+                    console.error(error);
+                }
+            );
+        },
+        function (error, data) {
+            try {
+                errorData = JSON.parse(data);
+                for (var e in errorData.attributes) {
+                    var attr = errorData.attributes[e]
+                    $('#group-' + attr.parameter + '-create').addClass('has-error')
+                    $('#error-' + attr.parameter + '-create').show()
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    );
+  });
+
+  $(document).on('click', 'button[id^="edit_"]', function (e) {
+    // remove validation errors from modal
+    $('[id^="group-"').removeClass('has-error')
+    $('#error-firstname-update').hide()
+    $('#error-lastname-update').hide()
+    $('#error-dob-update').hide()
+
+    var id_string = $(this).attr('id').substring(5);
+    var id = parseInt(id_string);
+    var user_to_update = users.find(user => user.id === id);
+    current_id_user = id;
+    $('#txFirstNameUpdate').val(user_to_update.firstname);
+    $('#txLastNameUpdate').val(user_to_update.lastname);
+    $('#txDobUpdate').val(user_to_update.dob);
+    e.preventDefault();
+  });
+
+  // delete user
+  $(document).on('click', 'a[id^="delete_"]', function (e) {
+    var id = $(this).attr('id').substring(7);
+    var idObj = {
+      "id": id
+    }
+    nethserver.exec(
+        ["cockpit-test-module/delete"],
+        idObj,
+        null,
+        function (success) {
+          // success - hide notifications after 3 seconds
+          parent.ns.$children[0].notifications.success.show = true
+          parent.ns.$children[0].notifications.success.message = "User deleted"
+          setTimeout(function () {
+              parent.ns.$children[0].notifications.success.show = false;
+          }, 3000)
+          getConfig()
+        },
+          function (error) {
+          // error
+          parent.ns.$children[0].notifications.error.show = true
+          parent.ns.$children[0].notifications.error.message = "Error: " + error
+          console.error(error);
+    });
+    e.preventDefault();
+  });
+
+  $('#btSaveUpdate').click(function() {
+    // remove errors from GUI
+    $('[id^="group-"').removeClass('has-error')
+    $('#error-firstname-update').hide()
+    $('#error-lastname-update').hide()
+    $('#error-dob-update').hide()
+
+    var firstname = $('#txFirstNameUpdate').val()
+    var lastname = $('#txLastNameUpdate').val()
+    var dob = $('#txDobUpdate').val()
+    var userObj = {
+      "id": current_id_user,
+      "firstname": firstname,
+      "lastname": lastname,
+      "dob": dob
+    }
+    nethserver.exec(
+        ["cockpit-test-module/validate"],
+        userObj,
+        null,
+        function (success) {
+            // update values
+            nethserver.exec(
+                ["cockpit-test-module/update"],
+                userObj,
+                null,
+                function (success) {
+                    // success - hide notifications after 3 seconds
+                    parent.ns.$children[0].notifications.success.show = true
+                    parent.ns.$children[0].notifications.success.message = "User updated"
+                    setTimeout(function () {
+                        parent.ns.$children[0].notifications.success.show = false;
+                    }, 3000)
+                    getConfig()
+                },
+                function (error) {
+                    // error
+                    parent.ns.$children[0].notifications.error.show = true
+                    parent.ns.$children[0].notifications.error.message = "Error: " + error
+                    console.error(error);
+                }
+            );
+        },
+        function (error, data) {
+          try {
+              errorData = JSON.parse(data);
+              for (var e in errorData.attributes) {
+                  var attr = errorData.attributes[e]
+                  $('#group-' + attr.parameter + '-update').addClass('has-error')
+                  $('#error-' + attr.parameter + '-update').show()
+              }
+          } catch (e) {
+              console.error(e)
+          }
+        }
+    );
+  });
+
+  // get initial values
+  getConfig()
 </script>

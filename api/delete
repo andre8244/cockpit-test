@@ -8,13 +8,18 @@ try:
     line = fileinput.input()[0].rstrip()
     input = simplejson.loads(line)
 
-    with open('users.json', "r") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "r") as users_file:
         users = simplejson.load(users_file)
-        id = input["id"]
-        user_to_delete = filter(lambda user: user["id"] == id, users)[0]
+        id = int(input["id"])
+        user_to_delete = filter(lambda user: user["id"] == id, users)
+
+        if len(user_to_delete) < 1:
+            raise ValueError('Cannot find user with ID ' + id)
+
+        user_to_delete = user_to_delete[0]
         users.remove(user_to_delete)
 
-    with open('users.json', "w") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "w") as users_file:
         simplejson.dump(users, users_file, indent=2)
         print({ "state": "success" })
 except Exception, e:

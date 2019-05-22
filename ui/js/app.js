@@ -56,4 +56,7 @@ $(document).on("language-loaded", function () {
     });
 
     app.run('#/');
+
+    /* i18n */
+    applyTranslations();
 })

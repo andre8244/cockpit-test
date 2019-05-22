@@ -5,29 +5,51 @@ import fileinput
 import datetime
 import sys
 
+error_attributes = []
+
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
+
+def addValidationError(attribute_name):
+    error_attributes.append({ 'parameter': attribute_name })
 
 try:
     line = fileinput.input()[0].rstrip()
     input = simplejson.loads(line)
 
-    #id = input["id"]
-    #if not isinstance(id, (int, long)):
-    #    raise ValueError('id is not numeric')
+    attribute_name = 'firstname'
+    try:
+        firstname = input[attribute_name]
+        if len(firstname) < 1 or hasNumbers(firstname):
+            addValidationError(attribute_name)
+    except Exception, e:
+        addValidationError(attribute_name)
 
-    firstname = input["firstname"]
-    if hasNumbers(firstname):
-        raise ValueError('firstname contains digits')
+    attribute_name = 'lastname'
+    try:
+        lastname = input[attribute_name]
+        if len(lastname) < 1 or hasNumbers(lastname):
+            addValidationError(attribute_name)
+    except Exception, e:
+        addValidationError(attribute_name)
 
-    lastname = input["lastname"]
-    if hasNumbers(lastname):
-        raise ValueError('lastname contains digits')
+    attribute_name = 'dob'
+    try:
+        dob_string = input[attribute_name]
+        dob = datetime.datetime.strptime(dob_string, '%d/%m/%Y')
+        today = datetime.datetime.today()
+        if dob > today:
+            addValidationError(attribute_name)
+    except Exception, e:
+        addValidationError(attribute_name)
 
-    dob_string = input["dob"]
-    dob = datetime.datetime.strptime(dob_string, '%d/%m/%Y')
-
-    print({ "state": "success" })
+    if len(error_attributes) == 0:
+        success = simplejson.dumps({ "state": "success" })
+        print(success)
+    else:
+        validation_error = simplejson.dumps({'error': 'There are validation errors', 'attributes': error_attributes })
+        print(validation_error)
+        sys.exit(1)
 except Exception, e:
     print simplejson.dumps({'error':"%s"%e})
     sys.exit(1)

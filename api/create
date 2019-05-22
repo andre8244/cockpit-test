@@ -11,7 +11,7 @@ try:
     line = fileinput.input()[0].rstrip()
     user = simplejson.loads(line)
 
-    with open('users.json', "r") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "r") as users_file:
         users = simplejson.load(users_file)
         user_id_max = max(users, key=get_id)
         print(user_id_max)
@@ -19,7 +19,7 @@ try:
         user["id"] = new_id
         users.append(user)
 
-    with open('users.json', "w") as users_file:
+    with open('/usr/libexec/nethserver/api/cockpit-test-module/users.json', "w") as users_file:
         simplejson.dump(users, users_file, indent=2)
         print({ "state": "success" })
 except Exception, e:
