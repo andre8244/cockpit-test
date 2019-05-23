@@ -91,6 +91,35 @@
     </div>
   </div>
 
+  <!-- modal to confirm user deletion -->
+  <div class="modal fade" id="modalUserDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <span class="pficon pficon-close"></span>
+          </button>
+          <h4 class="modal-title" id="modalUserDeleteLabel" i18n="delete_user"></h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning alert-dismissable">
+            <span class="pficon pficon-warning-triangle-o"></span>
+            <strong>Warning!</strong><span class="margin-left" i18n="delete_user_description"></span>.
+          </div>
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Are you sure?</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" i18n="cancel"></button>
+          <button type="button" class="btn btn-danger" i18n="delete" id="btConfirmDelete"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid">
     <div id="users" class="list-group list-view-pf list-view-pf-view">
     </div>
@@ -177,7 +206,7 @@
                               <span class="fa fa-ellipsis-v"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebabRight9">
-                              <li><a href="#" id="delete_` + user.id + `">Delete</a></li>
+                              <li><a href="#" id="delete_` + user.id + `" data-toggle="modal" data-target="#modalUserDelete">Delete</a></li>
                             </ul>
                           </div>
                         </div>
@@ -243,7 +272,8 @@
                     setTimeout(function () {
                         parent.ns.$children[0].notifications.success.show = false;
                     }, 3000)
-                    getConfig()
+                    getConfig();
+                    $('#modalUserCreate').modal('hide')
                 },
                 function (error) {
                     // error
@@ -287,9 +317,16 @@
 
   // delete user
   $(document).on('click', 'a[id^="delete_"]', function (e) {
-    var id = $(this).attr('id').substring(7);
+    var id_string = $(this).attr('id').substring(7);
+    current_id_user = parseInt(id_string);
+    console.log('current_id_user: ' + current_id_user);
+    e.preventDefault();
+  });
+
+  // confirm delete user
+  $('#btConfirmDelete').click(function() {
     var idObj = {
-      "id": id
+      "id": current_id_user
     }
     nethserver.exec(
         ["cockpit-test-module/delete"],
@@ -302,7 +339,8 @@
           setTimeout(function () {
               parent.ns.$children[0].notifications.success.show = false;
           }, 3000)
-          getConfig()
+          getConfig();
+          $('#modalUserDelete').modal('hide');
         },
           function (error) {
           // error
@@ -310,7 +348,6 @@
           parent.ns.$children[0].notifications.error.message = "Error: " + error
           console.error(error);
     });
-    e.preventDefault();
   });
 
   $('#btSaveUpdate').click(function() {
@@ -346,7 +383,8 @@
                     setTimeout(function () {
                         parent.ns.$children[0].notifications.success.show = false;
                     }, 3000)
-                    getConfig()
+                    getConfig();
+                    $('#modalUserUpdate').modal('hide');
                 },
                 function (error) {
                     // error

@@ -15,5 +15,9 @@
     "save": "Save",
     "firstname_validation": "First name must be a string without digits",
     "lastname_validation": "Last name must be a string without digits",
-    "dob_validation": "Date of birth must be a valid date in the past"
+    "dob_validation": "Date of birth must be a valid date in the past",
+    "delete_user": "Delete user",
+    "delete": "Delete",
+    "delete_user_question": "Delete user?",
+    "delete_user_description": "This action will permanently delete the user. This cannot be undone"
 }
